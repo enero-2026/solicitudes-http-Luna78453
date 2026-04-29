@@ -5,25 +5,46 @@ const searchButton = document.getElementById("searchButton");
 const suggestionContainer = document.getElementById("suggestions");
 const suggestionList = suggestionContainer.querySelector("ul")
 
-searchButton.addEventListener("click", () => {
-    
-});
-
 function chooseSuggestion(lat, lon){
+    deleteSuggestions();
+
     fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon} &appid=${apiKey}`)
         .then(response => {
             if(response){
-
+                return response.json();
             }
-        });
+        })
+        .then(data => {
+            if(data){
+                return data.json();
+            }
+        })
 }
 
-searchInput.addEventListener("keyup", function(){
+function deleteSuggestions(){
     if(suggestionList.children.length > 0){
         Array.from(suggestionList.children).forEach(suggestion => {
             suggestionList.removeChild(suggestion);
         });
     }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position => {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            chooseSuggestion(lat, lon);
+        });
+    }
+});
+
+searchButton.addEventListener("click", () => {
+    
+});
+
+searchInput.addEventListener("keyup", function(){
+    deleteSuggestions();
 
     fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${searchInput.value}&limit=5&appid=${apiKey}`)
         .then(response => {
